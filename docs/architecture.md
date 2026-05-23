@@ -8,17 +8,17 @@ flowchart LR
 
     subgraph VM[Ubuntu Server VM]
         SSH[SSH :22]
-        Nginx[Nginx Reverse Proxy :80/:443]
+        Nginx[Nginx Reverse Proxy :80]
         subgraph Compose[Docker Compose Services]
             App[FastAPI App :8000]
             DB[(PostgreSQL :5432 internal only)]
         end
     end
 
-    User -->|HTTPS :443| FW
+    User -->|HTTP :80| FW
     Admin -->|SSH :22| FW
 
-    FW -->|Allow 80/443 from Internet| Nginx
+    FW -->|Allow 80 from Internet| Nginx
     FW -->|Allow 22 from Admin IP only| SSH
 
     Nginx -->|proxy_pass /api| App
