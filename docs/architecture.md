@@ -13,6 +13,8 @@ flowchart LR
             App[FastAPI App :8000]
             DB[(PostgreSQL :5432 internal only)]
         end
+        DbBackup[backup_database.sh]
+        LocalDbBackup[Local Database Backup]
     end
 
     User -->|HTTP :80| FW
@@ -23,4 +25,6 @@ flowchart LR
 
     Nginx -->|proxy_pass /api| App
     App -->|PostgreSQL connection| DB
+    DbBackup -->|Postgress Dump| DB
+    DbBackup -->|Write Sql File| LocalDbBackup
 ```
