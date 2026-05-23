@@ -8,9 +8,8 @@ flowchart LR
 
     subgraph VM[Ubuntu Server VM]
         SSH[SSH :22]
-
+        Nginx[Nginx Reverse Proxy :80/:443]
         subgraph Compose[Docker Compose Services]
-            Nginx[Nginx Reverse Proxy :80/:443]
             App[FastAPI App :8000]
             DB[(PostgreSQL :5432 internal only)]
         end
