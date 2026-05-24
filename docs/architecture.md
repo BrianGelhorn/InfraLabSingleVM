@@ -9,8 +9,8 @@ flowchart LR
 
     subgraph VM[Ubuntu Server VM]
         SSH[SSH :22]
-        Nginx[Nginx Reverse Proxy :80]
         subgraph Compose[Docker Compose Services]
+            Nginx[Nginx Reverse Proxy :80]
             App[FastAPI App :8000]
             DB[(PostgreSQL :5432 internal only)]
         end
@@ -70,6 +70,11 @@ Process the entry requests, validates data and gets or modifies the PostgreSQL i
 
 Relational database of the system.
 Saves persistent user data, registers, states and operative data.
+
+### Backup Database
+
+Bash script running at the Ubuntu Server backround doing periodical local database backups.
+The script will make a dump in a period of time defined by the admin and save it in the local server.
 
 ## User Flow
 1. The user access the app through the HTTP protocol
