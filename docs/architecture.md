@@ -34,22 +34,22 @@ flowchart LR
 
 ### User
 
-Represents the final user that access the application.
+Represents the final user who accesses the application.
 The user does not access straight to the application, instead he access with the HTTP protocol through a reverse proxy.
 
 ### Admin
 
-Represents the system administrator or the responsable of the server.
-He can access the system through an SSH connection to make manteinance, changes, check logs or update services.
+Represents the system administrator responsible for maintaining the server.
+He can access the system through an SSH connection to make maintenance, changes, check logs or update services.
 
 ### Firewall / Security Group
 
-Controls the entrance network traffic of the system.
+Controls inbound network traffic to the system.
 Allows HTTP traffic from internet and restricts the SSH access only to an admin or responsables of server ips.
 
 ### Ubuntu Server VM
 
-Linux server where all the principal services will be executing. 
+Linux server where the main services run.
 Acts as host for Docker and Docker Compose.
 
 ### Docker Compose
@@ -64,28 +64,29 @@ Receives the external HTTP requests and will redirect them to the FastAPI applic
 ### FastAPI Backend
 
 Contains the principal business logic.
-Process the entry requests, validates data and gets or modifies the PostgreSQL information.
+Processes incoming requests. validates data and gets or modifies the PostgreSQL information.
 
 ### PostgreSQL Database
 
 Relational database of the system.
-Saves persistent user data, registers, states and operative data.
+Stores persistent application data, records, states, and operational data.
 
 ### Backup Database
 
-Bash script running at the Ubuntu Server backround doing periodical local database backups.
+Bash script running in the background on the Ubuntu Server to perform periodic local database backups.
 The script will make a dump in a period of time defined by the admin and save it in the local server.
 
 ## User Flow
-1. The user access the app through the HTTP protocol
-2. The request pass through the firewall/security group
-3. The firewall/security group allows the traffic for the port 80.
-4. The Nginx receives the request
-5. The Nginx Reverse Proxy redirects the traffic to the FastAPI backend.
-6. The FastAPI process the request.
-7. If the request needs to get persisent information, makes a consult to the PostgreSQL database.
-8. The FastAPI returns the answer to Nginx.
-9. Nginx sends a response to the user.
+1. The user accesses the application through HTTP on port 80.
+2. The request reaches the Firewall / Security Group.
+3. The Firewall / Security Group allows inbound HTTP traffic on port 80.
+4. Nginx receives the HTTP request.
+5. Nginx forwards the request to the FastAPI backend using the configured reverse proxy rules.
+6. The FastAPI backend processes the request.
+7. If persistent data is required, the backend queries or updates the PostgreSQL database.
+8. PostgreSQL returns the requested data or confirms the transaction.
+9. The FastAPI backend returns an HTTP response to Nginx.
+10. Nginx sends the final HTTP response back to the user.
 ```mermaid
 sequenceDiagram
     participant U as User
@@ -101,4 +102,27 @@ sequenceDiagram
     DB-->>API: Result
     API-->>N: HTTP response
     N-->>U: HTTP response
+```
+
+## Administration Flow
+
+1. The admin connects to the server through SSH on port 22.
+2. The connection reaches the Firewall / Security Group.
+3. The Firewall / Security Group allows the connection only if it is comming from an authorized IP and the port 22.
+4. The admin once connected makes maintenance tasks, changes, checks logs and restart or update services.
+
+```mermaid
+sequenceDiagram
+    participant Adm as Admin
+    participant FW as Firewall / Security Group
+    participant VM as Ubuntu Server VM
+    participant DC as Docker Compose
+    participant AC as App Containers
+
+    Adm->>FW: SSH Connection :22
+    FW->>VM: Allowed Connection
+    VM->>DC: Run docker compose commands
+    DC->>AC: Start, restart or update services
+    AC-->>VM: Logs and services status
+    VM-->>Adm: Logs, status and commands output
 ```
